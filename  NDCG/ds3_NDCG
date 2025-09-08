@@ -1,0 +1,25 @@
+from typing import List
+from math import log
+
+import numpy as np
+
+
+def normalized_dcg(relevance: List[float], k: int, method: str = "standard") -> float:
+    relevance_sort = sorted(relevance, reverse=True)
+    score = 0
+    score_IDCG = 0
+    score_DCG = 0
+    if method == "standard":
+        for i in range(0, k):
+            score_IDCG += relevance_sort[i] / log(i + 2, 2)
+            score_DCG += relevance[i] / log(i + 2, 2)
+            score = score_DCG / score_IDCG
+    elif method == "industry":
+        for i in range(0, k):
+            score_IDCG += (2 ** relevance_sort[i] - 1) / log(i + 2, 2)
+            score_DCG += (2 ** relevance[i] - 1) / log(i + 2, 2)
+            score = score_DCG / score_IDCG
+    else:
+        method = "raise ValueError"
+
+    return score

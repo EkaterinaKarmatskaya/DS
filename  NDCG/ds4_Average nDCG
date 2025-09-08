@@ -1,0 +1,35 @@
+from typing import List
+from math import log
+import numpy as np
+
+
+def avg_ndcg(
+    list_relevances: List[List[float]], k: int, method: str = "standard"
+) -> float:
+    n = len(list_relevances)
+    list_relevance_sort = [sorted(sublist, reverse=True) for sublist in list_relevances]
+    score_nDCG = []
+    score = 0
+
+    if method == "standard":
+        for j in range(0, n):
+            score_IDCG, score_DCG = 0, 0
+            for i in range(0, k):
+                score_IDCG += list_relevance_sort[j][i] / log(i + 2, 2)
+                score_DCG += list_relevances[j][i] / log(i + 2, 2)
+            score_nDCG.append(score_DCG / score_IDCG)
+        score = sum(score_nDCG) / n
+
+    elif method == "industry":
+        for j in range(0, n):
+            score_IDCG, score_DCG = 0, 0
+            for i in range(0, k):
+                score_IDCG += (2 ** list_relevance_sort[j][i] - 1) / log(i + 2, 2)
+                score_DCG += (2 ** list_relevances[j][i] - 1) / log(i + 2, 2)
+            score_nDCG.append(score_DCG / score_IDCG)
+        score = sum(score_nDCG) / n
+
+    else:
+        method = "raise ValueError"
+
+    return score
